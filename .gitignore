@@ -1,0 +1,17 @@
+# Node.js
+node_modules/
+.env
+package-lock.json
+
+# Logs
+logs/
+*.log
+
+# Build
+frontend/dist/
+backend/build/
+
+# Editor/IDE
+.vscode/
+.idea/
+.DS_Store
