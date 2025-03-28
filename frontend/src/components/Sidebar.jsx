@@ -26,6 +26,9 @@ function Sidebar() {
           <li>
             <Link to="/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link>
           </li>
+          <li>
+            <Link to="/vehicles" className="block p-2 hover:bg-gray-700 rounded-md">Vehiculos</Link>
+          </li>
         </ul>
       </div>
     </div>

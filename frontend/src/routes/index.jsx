@@ -5,9 +5,11 @@ import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Navbar from "../components/Navbar";
+import Vehicle from "../pages/Vehicle/Vehicle"
 
 function PrivateRoute({ children }) {
-    const { user } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
+    if (loading) return null;
     return user ? children : <Navigate to="/login" />;
 }
 
@@ -19,6 +21,7 @@ function AppRoutes() {
         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/vehicles" element={<PrivateRoute><Vehicle/></PrivateRoute>} />
       </Routes>
     </Router>
   );

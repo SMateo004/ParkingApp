@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
+import vehicleRoutes from "./routes/vehicleRoutes.js";
+
 import db from "./config/db.js";
 
 dotenv.config();
@@ -11,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/vehicles", vehicleRoutes)
 
 db.authenticate()
   .then(() => console.log("Conectado a PostgreSQL"))
