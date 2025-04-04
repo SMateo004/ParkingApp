@@ -3,6 +3,7 @@ import { getAllVehicles, addVehicle, updateVehicle, deleteVehicle } from "../../
 import { PencilIcon, Plus, TrashIcon } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import VehicleForm from "../../components/Forms/VehicleForm";
+import { useNotification } from "../../context/NotificationContext";
 
 function Vehicle() {
   const { user } = useContext(AuthContext);
@@ -11,6 +12,7 @@ function Vehicle() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ carPatent: "", model: "", vehicleType: "" });
+  const { showNotification } = useNotification();
 
   const fetchVehicles = async (userId, setVehicles) => {
     if (!userId) return;
@@ -38,12 +40,15 @@ function Vehicle() {
         setVehicles((prevData) => 
           prevData.map((item) => (item.id === newVehicle.id ? newVehicle : item))
         );
+        showNotification("Vehiculo actualizado correctamente", "success");
       } else {
           await addVehicle(newVehicle);
           setVehicles(await getAllVehicles(user.id));
+          showNotification("Vehiculo creado correctamente", "success");
       }
     } catch (error) {
       console.error("Error al añadir vehículo", error);
+      showNotification("Error al añadir el vehiculo", "error");
     }
 
     setNewVehicle({ carPatent: "", model: "", vehicleType: "" });
@@ -66,8 +71,10 @@ function Vehicle() {
     try {
       await deleteVehicle(id);
       setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle.id !== id));
+      showNotification("Vehiculo eliminado correctamente", "success");
     } catch (error) {
       console.error("Error al eliminar vehículo", error);
+      showNotification("Error al eliminar el vehiculo", "error");
     }
   };
 

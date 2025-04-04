@@ -3,6 +3,9 @@ import cors from "cors";
 import dotenv from "dotenv";
 import authRoutes from "./routes/authRoutes.js";
 import vehicleRoutes from "./routes/vehicleRoutes.js";
+import parkingRoutes from "./routes/parkingRoutes.js";
+import reservationRoutes from "./routes/reservationRoutes.js";
+import { initializeParkings } from "./services/parkingService.js";
 
 import db from "./config/db.js";
 
@@ -14,12 +17,17 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/vehicles", vehicleRoutes)
+app.use("/api/parkings", parkingRoutes);
+app.use("/api/reservations", reservationRoutes);
 
 db.authenticate()
-  .then(() => console.log("Conectado a PostgreSQL"))
+  .then(async () => {
+    console.log("Conectado a PostgreSQL")
+    // await initializeParkings();
+  })
   .catch((err) => console.error("Error al conectar la BD:", err));
 
-db.sync({ alter: true })
+db.sync({ alter: false })
   .then(() => console.log("Base de datos conectada"))
   .catch((err) => console.log("Error al conectar la BD", err));
 

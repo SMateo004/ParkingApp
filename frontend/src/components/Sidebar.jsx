@@ -29,6 +29,9 @@ function Sidebar() {
           <li>
             <Link to="/vehicles" className="block p-2 hover:bg-gray-700 rounded-md">Vehiculos</Link>
           </li>
+          <li>
+            <Link to="/parkings" className="block p-2 hover:bg-gray-700 rounded-md">Estacionamientos</Link>
+          </li>
         </ul>
       </div>
     </div>

@@ -39,4 +39,23 @@ export const deleteVehicle = async (vehicleId) => {
   return response.data;
 };
 
+export const getParkings = async (city, zone) => {
+  const params = {};
+  if (city) params.city = city;
+  if (zone) params.zone = zone;
+
+  const response = await api.get("/parkings", { params });
+  return response.data;
+};
+
+export const createReservation = async (reservationData) => {
+  const response = await api.post("/reservations", reservationData);
+  return response.data;
+};
+
+export const getReservations = async () => {
+  const response = await api.get("/reservations");
+  return response.data;
+};
+
 export default api;
