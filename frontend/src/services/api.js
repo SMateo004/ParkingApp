@@ -58,4 +58,25 @@ export const getReservations = async () => {
   return response.data;
 };
 
+export const checkReservationConflict = async (parkingId, startTime, endTime) => {
+  const params = {};
+  if (parkingId) params.parkingId = parkingId;
+  if (startTime) params.startTime = startTime;
+  if (endTime) params.endTime = endTime;
+
+  console.log(parkingId)
+  const response = await api.get("/reservations/check-availability", { params });
+  return response.data;
+};
+
+export const getAvailableVehicles = async (userId, startTime, endTime) => {
+  const params = {};
+  if (userId) params.userId = userId;
+  if (startTime) params.startTime = startTime;
+  if (endTime) params.endTime = endTime;
+
+  const response = await api.get("/reservations/available-vehicles", { params });
+  return response.data;
+};
+
 export default api;

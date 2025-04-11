@@ -7,6 +7,7 @@ import Register from "../pages/Register";
 import Navbar from "../components/Navbar";
 import Vehicle from "../pages/Vehicle/Vehicle"
 import Parking from "../pages/Parking/Parking";
+import Reservation from "../pages/Reservation/Reservation";
 
 function PrivateRoute({ children }) {
     const { user, loading } = useContext(AuthContext);
@@ -24,6 +25,7 @@ function AppRoutes() {
         <Route path="/register" element={<Register />} />
         <Route path="/vehicles" element={<PrivateRoute><Vehicle/></PrivateRoute>} />
         <Route path="/parkings" element={<PrivateRoute><Parking /></PrivateRoute>} />
+        <Route path="/reservations" element={<PrivateRoute><Reservation /></PrivateRoute>} />
       </Routes>
     </Router>
   );

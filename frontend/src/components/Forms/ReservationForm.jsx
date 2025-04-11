@@ -1,31 +1,79 @@
 import { useState, useEffect, useContext } from "react";
-import { createReservation } from "../../services/api";
-import { getAllVehicles } from "../../services/api";
+import { createReservation, getAvailableVehicles, checkReservationConflict } from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
 
 const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
   const { user } = useContext(AuthContext);
+  const { showNotification } = useNotification();
   const [vehicles, setVehicles] = useState([]);
   const [vehicleId, setVehicleId] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(false);
-  const { showNotification } = useNotification();
+
+  const now = new Date();
+  const minDate = new Date(now.getTime() + 60 * 60 * 1000);
+
+  const toDatetimeLocal = (date) => {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+  };
+
+  const minTime = toDatetimeLocal(minDate);
 
   useEffect(() => {
-    const fetchVehicles = async () => {
-      const data = await getAllVehicles(user?.id);
-      setVehicles(data);
-    };
-    fetchVehicles();
-  }, [user]);
+    if (startTime && endTime) {
+      (async () => {
+        try {
+          const data = await getAvailableVehicles(user?.id, startTime, endTime);
+          setVehicles(data);
+        } catch (err) {
+          console.error(err);
+          showNotification("Error al cargar vehículos disponibles", "error");
+        }
+      })();
+    }
+  }, [startTime, endTime]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
+    const start = new Date(startTime);
+    const end = new Date(endTime);
+  
+    if (end <= start) {
+      showNotification("La hora de fin debe ser mayor a la hora de inicio", "error");
+      setLoading(false);
+      return;
+    }
+
+    const sameDay =
+      start.getFullYear() === end.getFullYear() &&
+      start.getMonth() === end.getMonth() &&
+      start.getDate() === end.getDate();
+  
+    if (!sameDay) {
+      showNotification("La reserva debe realizarse para el mismo día", "error");
+      setLoading(false);
+      return;
+    }
+
+    const durationInMinutes = (end - start) / (1000 * 60);
+    if (durationInMinutes < 30) {
+      showNotification("La reserva debe durar al menos 30 minutos", "error");
+      setLoading(false);
+      return;
+    }
+
     try {
+      const availability = await checkReservationConflict(parking.id, startTime, endTime);
+      if (!availability) {
+        showNotification("El estacionamiento no está disponible en ese horario", "error");
+        return;
+      }
+
       await createReservation({
         vehicleId,
         parkingId: parking.id,
@@ -48,7 +96,26 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
       <div className="bg-white m-3 p-6 rounded-md shadow-lg w-96">
       <h2 className="text-lg font-bold mb-4">Reservar Estacionamiento</h2>
       <form className="mt-4" onSubmit={handleSubmit}>
-        <label className="block mb-2">Selecciona un vehículo:</label>
+
+        <label className="block mb-1 mt-2">Hora de inicio:</label>
+        <input 
+          type="datetime-local"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+          min={minTime}
+          required
+        />
+
+        <label className="block mb-1 mt-2">Hora de fin:</label>
+        <input 
+          type="datetime-local"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+          className="w-full p-2 border border-gray-300 rounded-md"
+          required
+        />
+        <label className="block mb-1 mt-2">Selecciona un vehículo:</label>
         <select 
           value={vehicleId} 
           onChange={(e) => setVehicleId(e.target.value)}
@@ -62,22 +129,6 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
             </option>
           ))}
         </select>
-
-        <label className="block mb-2">Hora de inicio:</label>
-        <input 
-          type="datetime-local" 
-          value={startTime} onChange={(e) => setStartTime(e.target.value)} 
-          className="w-full p-2 border border-gray-300 rounded-md"
-          required 
-        />
-
-        <label className="block mb-2">Hora de fin:</label>
-        <input 
-          type="datetime-local" 
-          value={endTime} onChange={(e) => setEndTime(e.target.value)} 
-          className="w-full p-2 border border-gray-300 rounded-md"
-          required 
-        />
 
         <div className="flex justify-end col-span-3 space-x-2 mt-4">
           <button 
