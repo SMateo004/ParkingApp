@@ -1,8 +1,5 @@
 import { DataTypes } from "sequelize";
 import db from "../config/db.js";
-import User from "./User.js";
-import Vehicle from "./Vehicle.js";
-import Parking from "./Parking.js";
 
 const Reservation = db.define("Reservation", {
   id: {
@@ -18,14 +15,22 @@ const Reservation = db.define("Reservation", {
     type: DataTypes.DATE,
     allowNull: false,
   },
+  entryTime: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  exitTime: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  paid: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
   totalCost: {
     type: DataTypes.FLOAT,
     allowNull: false,
   }
 });
-
-Reservation.belongsTo(User, { foreignKey: "userId" });
-Reservation.belongsTo(Vehicle, { foreignKey: "vehicleId" });
-Reservation.belongsTo(Parking, { foreignKey: "parkingId" });
 
 export default Reservation;

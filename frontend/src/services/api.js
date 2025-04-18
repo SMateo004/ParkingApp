@@ -64,7 +64,6 @@ export const checkReservationConflict = async (parkingId, startTime, endTime) =>
   if (startTime) params.startTime = startTime;
   if (endTime) params.endTime = endTime;
 
-  console.log(parkingId)
   const response = await api.get("/reservations/check-availability", { params });
   return response.data;
 };
@@ -76,6 +75,21 @@ export const getAvailableVehicles = async (userId, startTime, endTime) => {
   if (endTime) params.endTime = endTime;
 
   const response = await api.get("/reservations/available-vehicles", { params });
+  return response.data;
+};
+
+export const getAdminReservations = async () => {
+  const response = await api.get("/reservations/admin");
+  return response.data;
+};
+
+export const markReservationEntry = async (id) => {
+  const response = await api.patch("/reservations/mark-entry", {}, { params: { id }});
+  return response.data;
+};
+
+export const updateReservationEndTime = async (reservationId, newEndTime) => {
+  const response = await api.patch("/reservations/update-endtime", { newEndTime }, { params: { reservationId }});
   return response.data;
 };
 

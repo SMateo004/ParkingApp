@@ -8,11 +8,17 @@ import Navbar from "../components/Navbar";
 import Vehicle from "../pages/Vehicle/Vehicle"
 import Parking from "../pages/Parking/Parking";
 import Reservation from "../pages/Reservation/Reservation";
+import AdminReservationPage from "../pages/Reservation/AdminReservation";
 
 function PrivateRoute({ children }) {
     const { user, loading } = useContext(AuthContext);
     if (loading) return null;
     return user ? children : <Navigate to="/login" />;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useContext(AuthContext);
+  return user?.role === "admin" ? children : <Navigate to="/" />;
 }
 
 function AppRoutes() {
@@ -26,6 +32,8 @@ function AppRoutes() {
         <Route path="/vehicles" element={<PrivateRoute><Vehicle/></PrivateRoute>} />
         <Route path="/parkings" element={<PrivateRoute><Parking /></PrivateRoute>} />
         <Route path="/reservations" element={<PrivateRoute><Reservation /></PrivateRoute>} />
+        <Route path="/admin/reservations" element={<AdminRoute><AdminReservationPage /></AdminRoute>}
+        />
       </Routes>
     </Router>
   );

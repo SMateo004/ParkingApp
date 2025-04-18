@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { getReservations } from "../../services/api";
+import UpdateReservationForm from "../../components/Forms/UpdateReservationForm";
 
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
+  const [editReservation, setEditReservation] = useState(null);
+  const [minDate, setMinDate] = useState(null)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -12,6 +15,10 @@ const Reservation = () => {
     fetchData();
   }, []);
 
+  useEffect(() => {
+    const now = new Date();
+    setMinDate(new Date(now.getTime() + 30 * 30 * 1000));
+  }, []);
 
   return (
     <div className="container mx-auto p-4 mt-17">
@@ -22,8 +29,8 @@ const Reservation = () => {
           <tr className="bg-gray-800 text-white">
             <th className="border p-2">Nombre Estacionamiento</th>
             <th className="border p-2">Placa Vehiculo</th>
-            <th className="border p-2">Hora Entrada</th>
-            <th className="border p-2">Hora Salida</th>
+            <th className="border p-2">Hora Reserva Entrada</th>
+            <th className="border p-2">Hora Reserva Salida</th>
             <th className="border p-2">Costo</th>
             <th className="border p-2">Acciones</th>
           </tr>
@@ -33,28 +40,41 @@ const Reservation = () => {
             <tr key={reservation.id} className="border">
               <td className="border p-2">{reservation.Parking.name}</td>
               <td className="border p-2">{reservation.Vehicle.carPatent}</td>
-              <td className="border p-2">{reservation.startTime}</td>
-              <td className="border p-2">{reservation.endTime}</td>
+              <td className="border p-2">{new Date(reservation.startTime).toLocaleString()}</td>
+              <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
               <td className="border p-2">{reservation.totalCost} Bs/h</td>
-              <td className="border p-2">building..</td>
-              {/* <td>
-                {parking.availableSpaces > 0 ? (
-                  <div className="flex justify-center">
-                    <button 
-                      onClick={() => setSelectedParking(parking)}
-                      className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-600"
-                    >
-                      Reservar
-                    </button>
-                  </div>
+              <td className="border p-2">
+                {minDate < new Date(reservation.endTime) ? ( 
+                  <button
+                    onClick={() => setEditReservation(reservation)}
+                    className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+                  >
+                    Editar Salida
+                  </button>
                 ) : (
-                  "No disponible"
+                  <button
+                    onClick={()=>{}}
+                    className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
+                  >
+                    Realizar Pago
+                  </button>
                 )}
-              </td> */}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      {editReservation && (
+        <UpdateReservationForm
+          reservation={editReservation}
+          onClose={() => setEditReservation(null)}
+          onUpdate={(updated) => {
+            setReservations((prev) =>
+              prev.map((r) => (r.id === updated.id ? updated : r))
+            );
+          }}
+        />
+      )}
     </div>
   );
 };

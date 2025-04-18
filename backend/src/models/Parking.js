@@ -31,6 +31,10 @@ const Parking = db.define("Parking", {
     type: DataTypes.DECIMAL,
     allowNull: false,
   },
+  adminId: {
+    type: DataTypes.UUID,
+    allowNull: true,
+  },
 });
 
 export default Parking;

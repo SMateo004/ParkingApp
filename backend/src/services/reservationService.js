@@ -1,6 +1,7 @@
-import Reservation from "../models/Reservation.js";
 import Parking from "../models/Parking.js";
 import Vehicle from "../models/Vehicle.js";
+import Reservation from "../models/Reservation.js";
+import User from "../models/User.js";
 import { Op } from "sequelize";
 
 export const createReservation = async ({ userId, vehicleId, parkingId, startTime, endTime }) => {
@@ -14,8 +15,8 @@ export const createReservation = async ({ userId, vehicleId, parkingId, startTim
   if (!parking) throw new Error("Estacionamiento no encontrado");
   if (parking.availableSpaces <= 0) throw new Error("No hay espacios disponibles");
 
-  const durationInHours = (new Date(endTime) - new Date(startTime)) / 3600000;
-  const totalCost = Math.min(durationInHours * parking.rate, 15 * durationInHours);
+  const durationInHours = (new Date(endTime) - new Date(startTime)) / (1000 * 60 * 60);
+  const totalCost = Math.ceil(durationInHours) * parking.rate;
 
   const reservation = await Reservation.create({
     userId,
@@ -84,5 +85,52 @@ export const getAvailableVehiclesService = async (userId, startTime, endTime) =>
 };
 
 export const getUserReservations = async (userId) => {
-  return await Reservation.findAll({ where: { userId }, include: ["Parking", "Vehicle"] });
+  return await Reservation.findAll({ where: { userId }, include: [Parking, Vehicle]});
+};
+
+export const getReservationsByAdminService = async (adminId) => {
+  const parking = await Parking.findOne({ where: { adminId } });
+  console.log(parking)
+  if (!parking) throw new Error("No se encontró un estacionamiento para este admin");
+
+  return await Reservation.findAll({
+    where: { parkingId: parking.id },
+    include: [Vehicle, User, Parking],
+  });
+};
+
+export const markEntryService = async (reservationId) => {
+  const reservation = await Reservation.findByPk(reservationId);
+  if (!reservation) throw new Error("Reserva no encontrada");
+  reservation.entryTime = new Date();
+  await reservation.save();
+  return reservation;
+};
+
+export const updateReservationEndTimeService = async (reservationId, newEndTime) => {
+  const reservation = await Reservation.findByPk(reservationId, {
+    include: [Parking, Vehicle]
+  });
+
+  if (!reservation) throw new Error("Reserva no encontrada");
+
+  const oldEnd = new Date(reservation.endTime);
+  const newEnd = new Date(newEndTime);
+
+  if (newEnd <= oldEnd) throw new Error("La nueva hora de salida debe ser mayor a la actual");
+
+  const sameDay =
+    oldEnd.getFullYear() === newEnd.getFullYear() &&
+    oldEnd.getMonth() === newEnd.getMonth() &&
+    oldEnd.getDate() === newEnd.getDate();
+
+  if (!sameDay) throw new Error("La nueva hora debe ser en el mismo día que la reserva original");
+
+  const hours = (newEnd - new Date(reservation.startTime)) / (1000 * 60 * 60);
+  const cost = Math.ceil(hours) * reservation.Parking.rate;
+
+  reservation.endTime = newEnd;
+  reservation.totalCost = cost;
+  await reservation.save();
+  return reservation;
 };

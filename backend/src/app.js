@@ -23,7 +23,7 @@ app.use("/api/reservations", reservationRoutes);
 db.authenticate()
   .then(async () => {
     console.log("Conectado a PostgreSQL")
-    // await initializeParkings();
+    //await initializeParkings();
   })
   .catch((err) => console.error("Error al conectar la BD:", err));
 

@@ -1,4 +1,12 @@
-import { createReservation, getUserReservations, checkAvailabilityService, getAvailableVehiclesService } from "../services/reservationService.js";
+import { 
+  createReservation, 
+  getUserReservations, 
+  checkAvailabilityService, 
+  getAvailableVehiclesService,
+  getReservationsByAdminService,
+  markEntryService,
+  updateReservationEndTimeService
+} from "../services/reservationService.js";
 
 export const makeReservation = async (req, res) => {
   try {
@@ -39,5 +47,36 @@ export const getAvailableVehiclesAsync = async (req, res) => {
   } catch (error) {
     console.error("Error obteniendo vehículos disponibles:", error);
     res.status(500).json({ message: error });
+  }
+};
+
+export const getAdminReservations = async (req, res) => {
+  try {
+    const adminId = req.user.id;
+    const reservas = await getReservationsByAdminService(adminId);
+    res.json(reservas);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const markEntry = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const reserva = await markEntryService(id);
+    res.json(reserva);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateReservationEndTime = async (req, res) => {
+  try {
+    const { reservationId } = req.query;
+    const { newEndTime } = req.body;
+    const updated = await updateReservationEndTimeService(reservationId, newEndTime);
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
   }
 };

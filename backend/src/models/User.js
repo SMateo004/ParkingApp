@@ -1,7 +1,5 @@
 import { DataTypes } from "sequelize";
 import db from "../config/db.js";
-import Vehicle from "./Vehicle.js";
-
 
 const User = db.define("User", {
   id: {
@@ -24,15 +22,12 @@ const User = db.define("User", {
   },
   phoneNumber: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
   },
   role: {
     type: DataTypes.ENUM("admin", "cliente"),
     defaultValue: "cliente",
   },
 });
-
-User.hasMany(Vehicle, { foreignKey: "userId", onDelete: "CASCADE" });
-Vehicle.belongsTo(User, { foreignKey: "userId" });
 
 export default User;

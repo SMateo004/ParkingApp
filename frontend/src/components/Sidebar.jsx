@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { AuthContext } from "../context/AuthContext";
 
 function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const toggleSidebar = () => setIsOpen(!isOpen);
+  const { user } = useContext(AuthContext);
 
   return (
     <div className="relative">
@@ -17,21 +19,30 @@ function Sidebar() {
         }`}
       >
         <ul className="space-y-4">
-          <li>
-            <Link to="/" className="block p-2 hover:bg-gray-700 rounded-md">Inicio</Link>
-          </li>
-          <li>
-            <Link to="/profile" className="block p-2 hover:bg-gray-700 rounded-md">Perfil</Link>
-          </li>
-          <li>
-            <Link to="/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link>
-          </li>
-          <li>
-            <Link to="/vehicles" className="block p-2 hover:bg-gray-700 rounded-md">Vehiculos</Link>
-          </li>
-          <li>
-            <Link to="/parkings" className="block p-2 hover:bg-gray-700 rounded-md">Estacionamientos</Link>
-          </li>
+          {user?.role === "cliente" && (
+            <>
+              <li>
+                <Link to="/" className="block p-2 hover:bg-gray-700 rounded-md">Inicio</Link>
+              </li>
+              {/* <li>
+                <Link to="/profile" className="block p-2 hover:bg-gray-700 rounded-md">Perfil</Link>
+              </li> */}
+              <li>
+                <Link to="/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link>
+              </li>
+              <li>
+                <Link to="/vehicles" className="block p-2 hover:bg-gray-700 rounded-md">Vehiculos</Link>
+              </li>
+              <li>
+                <Link to="/parkings" className="block p-2 hover:bg-gray-700 rounded-md">Estacionamientos</Link>
+              </li>
+            </>
+          )}
+          {user?.role === "admin" && (
+            <>
+              <li><Link to="/admin/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link></li>
+            </>
+          )}
         </ul>
       </div>
     </div>
