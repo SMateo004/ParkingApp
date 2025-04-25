@@ -83,13 +83,23 @@ export const getAdminReservations = async () => {
   return response.data;
 };
 
-export const markReservationEntry = async (id) => {
-  const response = await api.patch("/reservations/mark-entry", {}, { params: { id }});
+export const markReservationEntry = async (reservationId) => {
+  const response = await api.patch("/reservations/mark-entry", {}, { params: { reservationId }});
+  return response.data;
+};
+
+export const markReservationExit = async (reservationId, parkingId) => {
+  const response = await api.patch("/reservations/mark-exit", {}, { params: { reservationId, parkingId }});
   return response.data;
 };
 
 export const updateReservationEndTime = async (reservationId, newEndTime) => {
   const response = await api.patch("/reservations/update-endtime", { newEndTime }, { params: { reservationId }});
+  return response.data;
+};
+
+export const markReservationAsPaid = async (reservationId) => {
+  const response = await api.patch("/reservations/pay", {}, { params: { reservationId }});
   return response.data;
 };
 

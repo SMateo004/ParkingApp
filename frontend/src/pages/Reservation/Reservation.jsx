@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { getReservations } from "../../services/api";
 import UpdateReservationForm from "../../components/Forms/UpdateReservationForm";
+import PaymentModal from "../Payment/Payment";
 
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
   const [editReservation, setEditReservation] = useState(null);
   const [minDate, setMinDate] = useState(null)
+  const [selectedReservation, setSelectedReservation] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,32 +38,41 @@ const Reservation = () => {
           </tr>
         </thead>
         <tbody>
-          {reservations.map((reservation) => (
-            <tr key={reservation.id} className="border">
-              <td className="border p-2">{reservation.Parking.name}</td>
-              <td className="border p-2">{reservation.Vehicle.carPatent}</td>
-              <td className="border p-2">{new Date(reservation.startTime).toLocaleString()}</td>
-              <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
-              <td className="border p-2">{reservation.totalCost} Bs/h</td>
-              <td className="border p-2">
-                {minDate < new Date(reservation.endTime) ? ( 
-                  <button
-                    onClick={() => setEditReservation(reservation)}
-                    className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
-                  >
-                    Editar Salida
-                  </button>
-                ) : (
-                  <button
-                    onClick={()=>{}}
-                    className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
-                  >
-                    Realizar Pago
-                  </button>
-                )}
-              </td>
+          {reservations.length > 0 ?
+            reservations.map((reservation) => (
+              <tr key={reservation.id} className="border">
+                <td className="border p-2">{reservation.Parking.name}</td>
+                <td className="border p-2">{reservation.Vehicle.carPatent}</td>
+                <td className="border p-2">{new Date(reservation.startTime).toLocaleString()}</td>
+                <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
+                <td className="border p-2">{reservation.totalCost} Bs/h</td>
+                <td className="border p-2">
+                  {minDate < new Date(reservation.endTime) ? ( 
+                    <button
+                      onClick={() => setEditReservation(reservation)}
+                      className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+                    >
+                      Editar Salida
+                    </button>
+                  ) : (
+                    <td>
+                      {!reservation.paid && (
+                        <button
+                          onClick={() => setSelectedReservation(reservation)}
+                          className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
+                        >
+                          Pagar
+                        </button>
+                      )}
+                    </td>
+                  )}
+                </td>
+              </tr>
+          )):(
+            <tr>
+              <td colSpan="8" className="py-4 px-4 text-center text-gray-500">No se encontraron resultados</td>
             </tr>
-          ))}
+          )}
         </tbody>
       </table>
       {editReservation && (
@@ -69,6 +80,17 @@ const Reservation = () => {
           reservation={editReservation}
           onClose={() => setEditReservation(null)}
           onUpdate={(updated) => {
+            setReservations((prev) =>
+              prev.map((r) => (r.id === updated.id ? updated : r))
+            );
+          }}
+        />
+      )}
+      {selectedReservation && (
+        <PaymentModal
+          reservation={selectedReservation}
+          onClose={() => setSelectedReservation(null)}
+          onPaymentSuccess={(updated) => {
             setReservations((prev) =>
               prev.map((r) => (r.id === updated.id ? updated : r))
             );

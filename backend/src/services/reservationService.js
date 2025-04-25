@@ -85,16 +85,33 @@ export const getAvailableVehiclesService = async (userId, startTime, endTime) =>
 };
 
 export const getUserReservations = async (userId) => {
-  return await Reservation.findAll({ where: { userId }, include: [Parking, Vehicle]});
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+  return await Reservation.findAll({ 
+    where: { 
+      userId, 
+      startTime: {
+        [Op.between]: [startOfDay, endOfDay]
+      }
+    }, include: [Parking, Vehicle]});
 };
 
 export const getReservationsByAdminService = async (adminId) => {
+  const today = new Date();
+  const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+  const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+
   const parking = await Parking.findOne({ where: { adminId } });
-  console.log(parking)
   if (!parking) throw new Error("No se encontró un estacionamiento para este admin");
 
   return await Reservation.findAll({
-    where: { parkingId: parking.id },
+    where: { 
+      parkingId: parking.id,
+      startTime: {
+        [Op.between]: [startOfDay, endOfDay]
+      }
+    },
     include: [Vehicle, User, Parking],
   });
 };
@@ -104,6 +121,17 @@ export const markEntryService = async (reservationId) => {
   if (!reservation) throw new Error("Reserva no encontrada");
   reservation.entryTime = new Date();
   await reservation.save();
+  return reservation;
+};
+
+export const markExitService = async (reservationId, parkingId) => {
+  const reservation = await Reservation.findByPk(reservationId);
+  if (!reservation) throw new Error("Reserva no encontrada");
+  reservation.exitTime = new Date();
+  await reservation.save();
+
+  await freeUpAvailableSpace(parkingId)
+  
   return reservation;
 };
 
@@ -134,3 +162,27 @@ export const updateReservationEndTimeService = async (reservationId, newEndTime)
   await reservation.save();
   return reservation;
 };
+
+export const markReservationAsPaidService = async (reservationId) => {
+  const reservation = await Reservation.findByPk(reservationId, {
+    include: [Vehicle, User, Parking],
+  });
+  
+  if (!reservation) throw new Error("Reserva no encontrada");
+
+  if (reservation.paid) throw new Error("Esta reserva ya está pagada");
+
+  reservation.paid = true;
+  await reservation.save();
+
+  return reservation;
+};
+
+const freeUpAvailableSpace = async (parkingId) => {
+  const parking = await Parking.findByPk(parkingId);
+  if (!parking) throw new Error("Estacionamiento no encontrado");
+
+  parking.availableSpaces -= 1;
+  await parking.save();
+  return parking;
+}

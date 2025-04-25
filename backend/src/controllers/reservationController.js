@@ -5,7 +5,9 @@ import {
   getAvailableVehiclesService,
   getReservationsByAdminService,
   markEntryService,
-  updateReservationEndTimeService
+  updateReservationEndTimeService,
+  markReservationAsPaidService,
+  markExitService
 } from "../services/reservationService.js";
 
 export const makeReservation = async (req, res) => {
@@ -62,8 +64,18 @@ export const getAdminReservations = async (req, res) => {
 
 export const markEntry = async (req, res) => {
   try {
-    const { id } = req.query;
-    const reserva = await markEntryService(id);
+    const { reservationId } = req.query;
+    const reserva = await markEntryService(reservationId);
+    res.json(reserva);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const markExit = async (req, res) => {
+  try {
+    const { reservationId, parkingId } = req.query;
+    const reserva = await markExitService(reservationId, parkingId);
     res.json(reserva);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -75,6 +87,16 @@ export const updateReservationEndTime = async (req, res) => {
     const { reservationId } = req.query;
     const { newEndTime } = req.body;
     const updated = await updateReservationEndTimeService(reservationId, newEndTime);
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const markReservationAsPaid = async (req, res) => {
+  try {
+    const { reservationId } = req.query;
+    const updated = await markReservationAsPaidService(reservationId);
     res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
