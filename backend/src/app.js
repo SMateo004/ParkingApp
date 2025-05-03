@@ -5,6 +5,7 @@ import authRoutes from "./routes/authRoutes.js";
 import vehicleRoutes from "./routes/vehicleRoutes.js";
 import parkingRoutes from "./routes/parkingRoutes.js";
 import reservationRoutes from "./routes/reservationRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 import { initializeParkings } from "./services/parkingService.js";
 
 import db from "./config/db.js";
@@ -19,6 +20,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/vehicles", vehicleRoutes)
 app.use("/api/parkings", parkingRoutes);
 app.use("/api/reservations", reservationRoutes);
+app.use("/api/reports", reportRoutes);
 
 db.authenticate()
   .then(async () => {

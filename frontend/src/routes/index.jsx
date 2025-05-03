@@ -9,6 +9,7 @@ import Vehicle from "../pages/Vehicle/Vehicle"
 import Parking from "../pages/Parking/Parking";
 import Reservation from "../pages/Reservation/Reservation";
 import AdminReservationPage from "../pages/Reservation/AdminReservation";
+import ReservationReports from "../pages/Reports/ReservationReport";
 
 function PrivateRoute({ children }) {
     const { user, loading } = useContext(AuthContext);
@@ -32,8 +33,8 @@ function AppRoutes() {
         <Route path="/vehicles" element={<PrivateRoute><Vehicle/></PrivateRoute>} />
         <Route path="/parkings" element={<PrivateRoute><Parking /></PrivateRoute>} />
         <Route path="/reservations" element={<PrivateRoute><Reservation /></PrivateRoute>} />
-        <Route path="/admin/reservations" element={<AdminRoute><AdminReservationPage /></AdminRoute>}
-        />
+        <Route path="/admin/reservations" element={<PrivateRoute><AdminRoute><AdminReservationPage /></AdminRoute></PrivateRoute>} />
+        <Route path="/admin/reports-reservations" element={<PrivateRoute><AdminRoute><ReservationReports /></AdminRoute></PrivateRoute>} />
       </Routes>
     </Router>
   );

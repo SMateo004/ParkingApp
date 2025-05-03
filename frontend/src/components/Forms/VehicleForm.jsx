@@ -55,20 +55,20 @@ const VehicleForm = ({ onSubmit, onCancel, newRow, handleChange, isEditMode }) =
                 </label>
 
                 <div className="flex justify-end col-span-3 space-x-2">
-                <button
-                    type="button"
-                    onClick={onCancel}
-                    className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
-                >
-                    Cancelar
-                </button>
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                    {isEditMode ? "Actualizar Cambios" : "Guardar"}
-                </button>
-          </div>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        type="submit"
+                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    >
+                        {isEditMode ? "Actualizar Cambios" : "Guardar"}
+                    </button>
+                </div>
             </form>
             </div>
       </div>

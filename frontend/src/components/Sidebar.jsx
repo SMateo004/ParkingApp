@@ -41,6 +41,7 @@ function Sidebar() {
           {user?.role === "admin" && (
             <>
               <li><Link to="/admin/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link></li>
+              <li><Link to="/admin/reports-reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reporte Reservas</Link></li>
             </>
           )}
         </ul>

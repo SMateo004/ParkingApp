@@ -103,4 +103,18 @@ export const markReservationAsPaid = async (reservationId) => {
   return response.data;
 };
 
+export const downloadReservationsReport = async (startDate, endDate, token) => {
+  const response = await api.get("/reports/reservations", {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { startDate, endDate },
+    responseType: 'blob'
+  });
+
+  const blob = new Blob([response.data], { type: 'application/pdf' });
+  const link = document.createElement('a');
+  link.href = window.URL.createObjectURL(blob);
+  link.download = "reporte_reservas.pdf";
+  link.click();
+};
+
 export default api;
