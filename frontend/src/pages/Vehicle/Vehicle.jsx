@@ -3,6 +3,7 @@ import { getAllVehicles, addVehicle, updateVehicle, deleteVehicle } from "../../
 import { PencilIcon, Plus, TrashIcon } from "lucide-react";
 import { AuthContext } from "../../context/AuthContext";
 import VehicleForm from "../../components/Forms/VehicleForm";
+import { useConfirm } from "../../context/ConfirmContext";
 import { useNotification } from "../../context/NotificationContext";
 
 function Vehicle() {
@@ -13,6 +14,7 @@ function Vehicle() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [newVehicle, setNewVehicle] = useState({ carPatent: "", model: "", vehicleType: "" });
   const { showNotification } = useNotification();
+  const { showConfirm } = useConfirm();
 
   const fetchVehicles = async (userId, setVehicles) => {
     if (!userId) return;
@@ -67,15 +69,21 @@ function Vehicle() {
     setIsModalOpen(true);
   };
 
-  const handleRemove = async (id) => {
-    try {
-      await deleteVehicle(id);
-      setVehicles((prevVehicles) => prevVehicles.filter((vehicle) => vehicle.id !== id));
-      showNotification("Vehiculo eliminado correctamente", "success");
-    } catch (error) {
-      console.error("Error al eliminar vehículo", error);
-      showNotification("Error al eliminar el vehiculo", "error");
-    }
+  const handleRemove = async (vehicle) => {
+    showConfirm({
+      title: "Eliminar vehículo",
+      message: `¿Deseas eliminar el vehículo ${vehicle.carPatent}?`,
+      onConfirm: async () => {
+        try {
+          await deleteVehicle(vehicle.id);
+          setVehicles((prev) => prev.filter((v) => v.id !== vehicle.id));
+          showNotification("Vehículo eliminado con éxito", "success");
+        } catch (error) {
+          console.log(error)
+          showNotification("Error al eliminar el vehículo", "error");
+        }
+      },
+    });
   };
 
   const handleSearchChange = (event) => {
@@ -134,7 +142,7 @@ function Vehicle() {
                       <PencilIcon className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleRemove(vehicle.id)}
+                      onClick={() => handleRemove(vehicle)}
                       className="text-red-500 hover:text-red-700"
                     >
                       <TrashIcon className="h-5 w-5" />

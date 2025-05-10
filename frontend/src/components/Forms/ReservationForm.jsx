@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from "react";
 import { createReservation, getAvailableVehicles, checkReservationConflict } from "../../services/api";
 import { AuthContext } from "../../context/AuthContext";
 import { useNotification } from "../../context/NotificationContext";
+import { useConfirm } from "../../context/ConfirmContext";
 
 const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
   const { user } = useContext(AuthContext);
@@ -11,6 +12,7 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const { showConfirm } = useConfirm();
 
   const now = new Date();
   const minDate = new Date(now.getTime() + 60 * 60 * 1000);
@@ -66,29 +68,34 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
       setLoading(false);
       return;
     }
-
-    try {
-      const availability = await checkReservationConflict(parking.id, startTime, endTime);
-      if (!availability) {
-        showNotification("El estacionamiento no está disponible en ese horario", "error");
-        return;
-      }
-
-      await createReservation({
-        vehicleId,
-        parkingId: parking.id,
-        startTime,
-        endTime,
-      });
-      showNotification("Reserva creada correctamente", "success");
-      onReservationSuccess(parking.id);
-      onClose();
-    } catch (error) {
-      console.error("Error en la reserva:", error);
-      showNotification("Error al crear la reserva", "error");
-    } finally {
-      setLoading(false);
-    }
+    showConfirm({
+      title: "Realizar Reserva",
+      message: `¿Deseas confirmar la reserva en el parking: ${parking.name}?`,
+      onConfirm: async () => {
+        try {
+        const availability = await checkReservationConflict(parking.id, startTime, endTime);
+        if (!availability) {
+          showNotification("El estacionamiento no está disponible en ese horario", "error");
+          return;
+        }
+        await createReservation({
+            vehicleId,
+            parkingId: parking.id,
+            startTime,
+            endTime,
+        });
+        showNotification("Reserva creada correctamente", "success");
+        onReservationSuccess(parking.id);
+        onClose();
+        } catch (error) {
+            console.error("Error en la reserva:", error);
+            showNotification("Error al crear la reserva", "error");
+        } finally {
+            setLoading(false);
+        }
+      },
+      onCancel: () => {setLoading(false);}
+    });
   };
 
   return (

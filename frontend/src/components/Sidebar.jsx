@@ -1,6 +1,11 @@
 import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { 
+  Menu, X, Car, 
+  CalendarCheck, Home, 
+  ParkingCircle,
+  FileText, ListChecks 
+} from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
 function Sidebar() {
@@ -10,11 +15,11 @@ function Sidebar() {
 
   return (
     <div className="relative">
-      <button className="p-2 bg-blue-600 text-white rounded-md" onClick={toggleSidebar}>
+      <button className="p-2 bg-sky-600 text-white rounded-md" onClick={toggleSidebar}>
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
       <div
-        className={`fixed top-18 left-0 h-full bg-gray-800 text-white w-64 p-4 transition-transform duration-300 ${
+        className={`fixed top-18 left-0 h-full bg-sky-700 text-white w-64 p-4 transition-transform duration-300 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -22,26 +27,40 @@ function Sidebar() {
           {user?.role === "cliente" && (
             <>
               <li>
-                <Link to="/" className="block p-2 hover:bg-gray-700 rounded-md">Inicio</Link>
-              </li>
-              {/* <li>
-                <Link to="/profile" className="block p-2 hover:bg-gray-700 rounded-md">Perfil</Link>
-              </li> */}
-              <li>
-                <Link to="/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link>
+                <Link to="/" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <Home size={18} /> Inicio
+                </Link>
               </li>
               <li>
-                <Link to="/vehicles" className="block p-2 hover:bg-gray-700 rounded-md">Vehiculos</Link>
+                <Link to="/reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <CalendarCheck size={18} /> Reservas
+                </Link>
               </li>
               <li>
-                <Link to="/parkings" className="block p-2 hover:bg-gray-700 rounded-md">Estacionamientos</Link>
+                <Link to="/vehicles" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <Car size={18} /> Vehículos
+                </Link>
+              </li>
+              <li>
+                <Link to="/parkings" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <ParkingCircle size={18} /> Estacionamientos
+                </Link>
               </li>
             </>
           )}
+
           {user?.role === "admin" && (
             <>
-              <li><Link to="/admin/reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reservas</Link></li>
-              <li><Link to="/admin/reports-reservations" className="block p-2 hover:bg-gray-700 rounded-md">Reporte Reservas</Link></li>
+              <li>
+                <Link to="/admin/reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <ListChecks size={18} /> Reservas
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/reports-reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <FileText size={18} /> Reporte Reservas
+                </Link>
+              </li>
             </>
           )}
         </ul>

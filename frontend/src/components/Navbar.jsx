@@ -11,7 +11,7 @@ function Navbar() {
   if (location.pathname === "/login" || location.pathname === "/register") return null;
 
   return (
-    <nav className="fixed top-0 left-0 w-full bg-blue-600 text-white p-4 flex justify-between items-center shadow-md z-50">
+    <nav className="fixed top-0 left-0 w-full bg-sky-700 text-white p-4 flex justify-between items-center shadow-md z-50">
         <div className="flex items-center gap-4">
             <Sidebar />
             <h1 className="text-xl font-bold">ParkSmart</h1>

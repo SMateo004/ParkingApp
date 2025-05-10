@@ -28,6 +28,8 @@ function Login() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+      <img src="/logo.png" className="w-30 mb-4">
+      </img>
       <h2 className="text-2xl font-bold mb-4">Iniciar Sesión</h2>
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow-md w-80">
