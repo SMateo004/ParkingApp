@@ -1,13 +1,18 @@
 import { useState, useEffect } from "react";
-import { getReservations } from "../../services/api";
+import { getReservations, cancelReservation } from "../../services/api";
 import UpdateReservationForm from "../../components/Forms/UpdateReservationForm";
 import PaymentModal from "../Payment/Payment";
+import { useConfirm } from "../../context/ConfirmContext";
+import { useNotification } from "../../context/NotificationContext";
 
 const Reservation = () => {
   const [reservations, setReservations] = useState([]);
   const [editReservation, setEditReservation] = useState(null);
   const [minDate, setMinDate] = useState(null)
   const [selectedReservation, setSelectedReservation] = useState(null);
+  const { showConfirm } = useConfirm();
+  const { showNotification } = useNotification();
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,6 +27,27 @@ const Reservation = () => {
     setMinDate(new Date(now.getTime() + 30 * 30 * 1000));
   }, []);
 
+  const handlePaymentClick = (reservation) => {
+    setSelectedReservation(reservation);
+  };
+  
+  const handleCancelClick = (reservation) => {
+    showConfirm({
+      title: "Cancelar reserva",
+      message: "¿Estás seguro de que deseas cancelar esta reserva?",
+      onConfirm: async () => {
+        try {
+          await cancelReservation(reservation.id);
+          setReservations((prev) => prev.filter((r) => r.id !== reservation.id));
+          showNotification("Reserva cancelada", "success");
+        } catch {
+          showNotification("Error al cancelar reserva", "error");
+        }
+      },
+      onCancel: () => setSelectedReservation(null)
+    });
+  };
+  
   return (
     <div className="container mx-auto p-4 mt-17">
       <h1 className="text-xl font-bold mb-4">Mis Reservas</h1>
@@ -47,18 +73,26 @@ const Reservation = () => {
                 <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
                 <td className="border p-2">{reservation.totalCost} Bs/h</td>
                 <td className="border p-2">
-                  {minDate < new Date(reservation.endTime) ? ( 
-                    <button
-                      onClick={() => setEditReservation(reservation)}
-                      className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
-                    >
-                      Editar Salida
-                    </button>
+                  {minDate < new Date(reservation.endTime) || !reservation.paid ? ( 
+                    <div className="flex justify-center col-span-3 space-x-2">
+                      <button
+                        onClick={() => setEditReservation(reservation)}
+                        className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+                      >
+                        Editar Salida
+                      </button>
+                      <button
+                        onClick={() => handleCancelClick(reservation)}
+                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800"
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   ) : (
                     <td>
                       {!reservation.paid && (
                         <button
-                          onClick={() => setSelectedReservation(reservation)}
+                          onClick={() => handlePaymentClick(reservation)}
                           className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
                         >
                           Pagar

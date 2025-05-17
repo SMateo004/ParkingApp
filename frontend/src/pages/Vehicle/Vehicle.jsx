@@ -83,6 +83,7 @@ function Vehicle() {
           showNotification("Error al eliminar el vehículo", "error");
         }
       },
+      onCancel: () => setIsModalOpen(false)
     });
   };
 

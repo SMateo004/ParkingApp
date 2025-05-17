@@ -7,7 +7,8 @@ import {
   markEntryService,
   updateReservationEndTimeService,
   markReservationAsPaidService,
-  markExitService
+  markExitService,
+  cancelReservationService
 } from "../services/reservationService.js";
 
 export const makeReservation = async (req, res) => {
@@ -98,6 +99,18 @@ export const markReservationAsPaid = async (req, res) => {
     const { reservationId } = req.query;
     const updated = await markReservationAsPaidService(reservationId);
     res.json(updated);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const cancelReservation = async (req, res) => {
+  try {
+    const { reservationId } = req.params;
+    const userId = req.user.id;
+
+    const response = await cancelReservationService(reservationId, userId);
+    res.status(200).json(response);
   } catch (error) {
     res.status(400).json({ message: error.message });
   }

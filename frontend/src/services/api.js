@@ -117,4 +117,11 @@ export const downloadReservationsReport = async (startDate, endDate, token) => {
   link.click();
 };
 
+export const cancelReservation = async (reservationId, token) => {
+  const response = await api.delete(`/reservations/cancel/${reservationId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+
 export default api;

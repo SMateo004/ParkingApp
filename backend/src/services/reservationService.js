@@ -186,3 +186,14 @@ const freeUpAvailableSpace = async (parkingId) => {
   await parking.save();
   return parking;
 }
+
+export const cancelReservationService = async (reservationId, userId) => {
+  const reservation = await Reservation.findByPk(reservationId);
+
+  if (!reservation) throw new Error("Reserva no encontrada");
+  if (reservation.userId !== userId) throw new Error("No autorizado para cancelar esta reserva");
+  if (reservation.paid) throw new Error("No se puede cancelar una reserva ya pagada");
+
+  await reservation.destroy();
+  return { message: "Reserva cancelada correctamente" };
+};
