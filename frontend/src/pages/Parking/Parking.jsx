@@ -35,8 +35,7 @@ const Parking = () => {
   return (
     <div className="container mx-auto p-4 mt-17">
       <h1 className="text-xl font-bold mb-4">Estacionamientos Disponibles</h1>
-
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-col md:flex-row md:items-center mb-4 space-y-2 md:space-y-0 gap-4">
         <select value={city} onChange={(e) => setCity(e.target.value)} className="p-2 border rounded">
           <option value="">Seleccionar Ciudad</option>
           {cities.map((c) => (
@@ -51,46 +50,43 @@ const Parking = () => {
           ))}
         </select>
       </div>
-
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-800 text-white">
-            <th className="border p-2">Nombre</th>
-            <th className="border p-2">Ciudad</th>
-            <th className="border p-2">Zona</th>
-            <th className="border p-2">Capacidad</th>
-            <th className="border p-2">Espacios Libres</th>
-            <th className="border p-2">Tarifa</th>
-            <th className="border p-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {parkings.map((parking) => (
-            <tr key={parking.id} className="border">
-              <td className="border p-2">{parking.name}</td>
-              <td className="border p-2">{parking.city}</td>
-              <td className="border p-2">{parking.zone}</td>
-              <td className="border p-2">{parking.capacity}</td>
-              <td className="border p-2">{parking.availableSpaces}</td>
-              <td className="border p-2">{parking.rate} Bs/h</td>
-              <td>
-                {parking.availableSpaces > 0 ? (
-                  <div className="flex justify-center">
-                    <button 
-                      onClick={() => setSelectedParking(parking)}
-                      className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-600"
-                    >
-                      Reservar
-                    </button>
-                  </div>
-                ) : (
-                  "No disponible"
-                )}
-              </td>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-800 text-white">
+              <th className="border p-2">Nombre</th>
+              <th className="border p-2">Ciudad</th>
+              <th className="border p-2">Zona</th>
+              <th className="border p-2">Tarifa</th>
+              <th className="border p-2">Acciones</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {parkings.map((parking) => (
+              <tr key={parking.id} className="border">
+                <td className="border p-2">{parking.name}</td>
+                <td className="border p-2">{parking.city}</td>
+                <td className="border p-2">{parking.zone}</td>
+                <td className="border p-2">{parking.rate} Bs/h</td>
+                <td>
+                  {parking.availableSpaces > 0 ? (
+                    <div className="flex justify-center">
+                      <button 
+                        onClick={() => setSelectedParking(parking)}
+                        className="px-2 py-1 bg-green-600 text-white rounded hover:bg-blue-600"
+                      >
+                        Reservar
+                      </button>
+                    </div>
+                  ) : (
+                    "No disponible"
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {selectedParking && 
         <ReservationForm 
           parking={selectedParking} 

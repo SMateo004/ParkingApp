@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 const images = [
   "/parking1.png",
@@ -15,6 +16,7 @@ const benefits = [
 
 function Home() {
   const [current, setCurrent] = useState(0);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -51,12 +53,21 @@ function Home() {
       </div>
 
       <div className="text-center mt-13 mb-5">
-        <Link
-          to="/parkings"
-          className="bg-sky-600 text-white px-6 py-3 rounded-md hover:bg-sky-700 transition"
-        >
-          Ir a Reservar
-        </Link>
+        {user?.role === "cliente" ? ( 
+          <Link
+            to="/parkings"
+            className="bg-sky-600 text-white px-6 py-3 rounded-md hover:bg-sky-700 transition"
+          >
+            Ir a Reservar
+          </Link>
+        ): (
+          <Link
+            to="/admin/reservations"
+            className="bg-sky-600 text-white px-6 py-3 rounded-md hover:bg-sky-700 transition"
+          >
+            Ver Reservas
+          </Link>
+        )}
       </div>
     </div>
   );

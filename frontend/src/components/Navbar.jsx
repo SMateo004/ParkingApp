@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Link, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
-import { ChevronDown, LogOut } from "lucide-react";
+import { ChevronDown, LogOut, User } from "lucide-react";
 
 function Navbar() {
   const { user, logout } = useContext(AuthContext);
@@ -18,13 +18,21 @@ function Navbar() {
         </div>
         {user ? (
             <div className="relative">
-            <div className="hidden sm:flex items-center gap-4">
-                <span className="text-lg">{user.name || "Usuario"}</span>
-                <button onClick={logout} className="bg-red-500 px-3 py-1 rounded-md">
-                Cerrar Sesión
+                <div className="hidden sm:flex items-center gap-4">
+                <a
+                    href="/profile"
+                    className="flex items-center gap-2 px-4 py-2 text-white hover:text-blue-400"
+                >
+                    <User className="w-5 h-5" />
+                    {user.name || "Usuario"}
+                </a>
+                <button
+                    onClick={logout}
+                    className="bg-red-500 px-3 py-1 rounded-md hover:bg-red-600 text-white"
+                >
+                    Cerrar Sesión
                 </button>
             </div>
-
             <div className="sm:hidden">
                 <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center">
                 <ChevronDown size={24} />
@@ -32,7 +40,13 @@ function Navbar() {
 
                 {menuOpen && (
                 <div className="absolute right-0 mt-2 bg-white text-black shadow-lg rounded-md w-40">
-                    <p className="px-4 py-2">{user.name || "Usuario"}</p>
+                    <a
+                    href="/profile"
+                    className="flex items-center gap-2 px-4 py-2 text-black hover:text-blue-400"
+                    >
+                        <User className="w-5 h-5" />
+                        {user.name || "Usuario"}
+                    </a>
                     <button
                     onClick={logout}
                     className="w-full flex items-center px-4 py-2 text-red-500 hover:bg-gray-200"

@@ -2,10 +2,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import dotenv from "dotenv";
+import Vehicle from "../models/Vehicle.js";
 
 dotenv.config();
 
-export const register = async ({ name, email, password, phoneNumber, role }) => {
+export const register = async ({ name, email, password, phoneNumber, role, city, vehicle}) => {
       const existingUser = await User.findOne({ where: { email } });
       
       if (existingUser) throw new Error("El usuario ya existe");
@@ -18,8 +19,17 @@ export const register = async ({ name, email, password, phoneNumber, role }) => 
         password: hashedPassword,
         phoneNumber,
         role,
+        city
       });
-  
+
+      if (vehicle) {
+        await Vehicle.create({
+          userId: newUser.id,
+          carPatent: vehicle.patentNumber,
+          model: vehicle.model,
+          vehicleType: vehicle.vehicleType,
+        });
+      }
       return { message: "Usuario registrado exitosamente", user: newUser };
   };
   
@@ -36,3 +46,7 @@ export const register = async ({ name, email, password, phoneNumber, role }) => 
   
       return { token, user: { id: user.id, name: user.name, role: user.role } };
   };
+
+export const getUserProfileService = async (userId) => {
+  return await User.findOne({where: {id: userId}, include: [Vehicle]});
+};

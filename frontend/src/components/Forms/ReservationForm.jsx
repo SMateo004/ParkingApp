@@ -1,17 +1,15 @@
-import { useState, useEffect, useContext } from "react";
-import { createReservation, getAvailableVehicles, checkReservationConflict } from "../../services/api";
-import { AuthContext } from "../../context/AuthContext";
+import { useState } from "react";
+import { createReservation, checkReservationConflict } from "../../services/api";
 import { useNotification } from "../../context/NotificationContext";
 import { useConfirm } from "../../context/ConfirmContext";
+import { useNavigate } from "react-router-dom";
 
 const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
-  const { user } = useContext(AuthContext);
   const { showNotification } = useNotification();
-  const [vehicles, setVehicles] = useState([]);
-  const [vehicleId, setVehicleId] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const { showConfirm } = useConfirm();
 
   const now = new Date();
@@ -23,20 +21,6 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
   };
 
   const minTime = toDatetimeLocal(minDate);
-
-  useEffect(() => {
-    if (startTime && endTime) {
-      (async () => {
-        try {
-          const data = await getAvailableVehicles(user?.id, startTime, endTime);
-          setVehicles(data);
-        } catch (err) {
-          console.error(err);
-          showNotification("Error al cargar vehículos disponibles", "error");
-        }
-      })();
-    }
-  }, [startTime, endTime]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -79,7 +63,6 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
           return;
         }
         await createReservation({
-            vehicleId,
             parkingId: parking.id,
             startTime,
             endTime,
@@ -87,9 +70,10 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
         showNotification("Reserva creada correctamente", "success");
         onReservationSuccess(parking.id);
         onClose();
+        navigate("/reservations")
         } catch (error) {
             console.error("Error en la reserva:", error);
-            showNotification("Error al crear la reserva", "error");
+            showNotification(error.response?.data?.message || "Error al crear la reserva", "error");
         } finally {
             setLoading(false);
         }
@@ -122,21 +106,6 @@ const ReservationForm = ({ parking, onClose, onReservationSuccess }) => {
           className="w-full p-2 border border-gray-300 rounded-md"
           required
         />
-        <label className="block mb-1 mt-2">Selecciona un vehículo:</label>
-        <select 
-          value={vehicleId} 
-          onChange={(e) => setVehicleId(e.target.value)}
-          className="w-full p-2 border border-gray-300 rounded-md" 
-          required
-        >
-          <option value="">Seleccione</option>
-          {vehicles.map((vehicle) => (
-            <option key={vehicle.id} value={vehicle.id}>
-              {vehicle.carPatent} - {vehicle.model}
-            </option>
-          ))}
-        </select>
-
         <div className="flex justify-end col-span-3 space-x-2 mt-4">
           <button 
             type="button" 

@@ -51,64 +51,65 @@ const Reservation = () => {
   return (
     <div className="container mx-auto p-4 mt-17">
       <h1 className="text-xl font-bold mb-4">Mis Reservas</h1>
-
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-800 text-white">
-            <th className="border p-2">Nombre Estacionamiento</th>
-            <th className="border p-2">Placa Vehiculo</th>
-            <th className="border p-2">Hora Reserva Entrada</th>
-            <th className="border p-2">Hora Reserva Salida</th>
-            <th className="border p-2">Costo</th>
-            <th className="border p-2">Acciones</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservations.length > 0 ?
-            reservations.map((reservation) => (
-              <tr key={reservation.id} className="border">
-                <td className="border p-2">{reservation.Parking.name}</td>
-                <td className="border p-2">{reservation.Vehicle.carPatent}</td>
-                <td className="border p-2">{new Date(reservation.startTime).toLocaleString()}</td>
-                <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
-                <td className="border p-2">{reservation.totalCost} Bs/h</td>
-                <td className="border p-2">
-                  {minDate < new Date(reservation.endTime) || !reservation.paid ? ( 
-                    <div className="flex justify-center col-span-3 space-x-2">
-                      <button
-                        onClick={() => setEditReservation(reservation)}
-                        className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
-                      >
-                        Editar Salida
-                      </button>
-                      <button
-                        onClick={() => handleCancelClick(reservation)}
-                        className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800"
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  ) : (
-                    <td>
-                      {!reservation.paid && (
-                        <button
-                          onClick={() => handlePaymentClick(reservation)}
-                          className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
-                        >
-                          Pagar
-                        </button>
-                      )}
-                    </td>
-                  )}
-                </td>
-              </tr>
-          )):(
-            <tr>
-              <td colSpan="8" className="py-4 px-4 text-center text-gray-500">No se encontraron resultados</td>
+      <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+        <table className="w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-800 text-white">
+              <th className="border p-2">Nombre Estacionamiento</th>
+              <th className="border p-2">Placa Vehiculo</th>
+              <th className="border p-2">Hora Reserva Entrada</th>
+              <th className="border p-2">Hora Reserva Salida</th>
+              <th className="border p-2">Costo</th>
+              <th className="border p-2">Acciones</th>
             </tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {reservations.length > 0 ?
+              reservations.map((reservation) => (
+                <tr key={reservation.id} className="border">
+                  <td className="border p-2">{reservation.Parking.name}</td>
+                  <td className="border p-2">{reservation.Vehicle.carPatent}</td>
+                  <td className="border p-2">{new Date(reservation.startTime).toLocaleString()}</td>
+                  <td className="border p-2">{new Date(reservation.endTime).toLocaleString()}</td>
+                  <td className="border p-2">{reservation.totalCost} Bs/h</td>
+                  <td className="border p-2">
+                    {minDate < new Date(reservation.endTime) || !reservation.paid ? ( 
+                      <div className="flex justify-center col-span-3 space-x-2">
+                        <button
+                          onClick={() => setEditReservation(reservation)}
+                          className="bg-pink-600 text-white px-2 py-1 rounded hover:bg-pink-800"
+                        >
+                          Editar Salida
+                        </button>
+                        <button
+                          onClick={() => handleCancelClick(reservation)}
+                          className="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-800"
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    ) : (
+                      <td>
+                        {!reservation.paid && (
+                          <button
+                            onClick={() => handlePaymentClick(reservation)}
+                            className="bg-cyan-500 text-white px-2 py-1 rounded hover:bg-cyan-700"
+                          >
+                            Pagar
+                          </button>
+                        )}
+                      </td>
+                    )}
+                  </td>
+                </tr>
+            )):(
+              <tr>
+                <td colSpan="8" className="py-4 px-4 text-center text-gray-500">No se encontraron resultados</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       {editReservation && (
         <UpdateReservationForm
           reservation={editReservation}

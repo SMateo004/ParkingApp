@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 
 const createAdminUsers = async () => {
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  const hashedPassword = await bcrypt.hash("Admin2025_", 10);
 
   const admins = await Promise.all(
     Array.from({ length: 9 }).map((_, i) =>
@@ -39,9 +39,14 @@ export const initializeParkings = async () => {
   await Parking.bulkCreate(parkingsData);
 };
 
-export const getParkings = async (city, zone) => {
+export const getParkings = async (city, zone, userId) => {
+  const user = await User.findOne({where: { id: userId }})
   const filters = {};
-  if (city) filters.city = city;
+  if (city) {
+    filters.city = city;
+  } else if (user.role != "admin") {
+    filters.city = user.city;
+  } else { filters.adminId = userId }
   if (zone) filters.zone = zone;
 
   return await Parking.findAll({ where: filters });

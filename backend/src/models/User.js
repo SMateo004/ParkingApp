@@ -24,6 +24,10 @@ const User = db.define("User", {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  city: {
+    type: DataTypes.ENUM("SantaCruz", "Cochabamba", "LaPaz"),
+    allowNull: true,
+  },
   role: {
     type: DataTypes.ENUM("admin", "cliente"),
     defaultValue: "cliente",

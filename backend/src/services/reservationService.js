@@ -2,14 +2,21 @@ import Parking from "../models/Parking.js";
 import Vehicle from "../models/Vehicle.js";
 import Reservation from "../models/Reservation.js";
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 import { Op } from "sequelize";
 
-export const createReservation = async ({ userId, vehicleId, parkingId, startTime, endTime }) => {
+export const createReservation = async ({ userId, parkingId, startTime, endTime }) => {
   const isAvailable = await checkAvailabilityService(parkingId, startTime, endTime);
   if (!isAvailable) throw new Error("El estacionamiento ya está reservado en ese horario.");
 
+  const defaultVehicle = await Vehicle.findOne({
+    where: { userId, isDefault: true }
+  });
+
+  if (!defaultVehicle) throw new Error("No hay vehículo predeterminado.");
+
   const vehicles = await getAvailableVehiclesService(userId, startTime, endTime);
-  if (!vehicles.some((v) => v.id === vehicleId)) throw new Error("El vehículo ya está reservado en ese horario.");
+  if (!vehicles.some((v) => v.id === defaultVehicle.id)) throw new Error("El vehículo ya está reservado en ese horario.");
 
   const parking = await Parking.findByPk(parkingId);
   if (!parking) throw new Error("Estacionamiento no encontrado");
@@ -20,7 +27,7 @@ export const createReservation = async ({ userId, vehicleId, parkingId, startTim
 
   const reservation = await Reservation.create({
     userId,
-    vehicleId,
+    vehicleId: defaultVehicle.id,
     parkingId,
     startTime,
     endTime,
@@ -62,7 +69,7 @@ export const checkAvailabilityService = async (parkingId, startTime, endTime) =>
 };
 
 export const getAvailableVehiclesService = async (userId, startTime, endTime) => {
-  const allVehicles = await Vehicle.findAll({ where: { userId } });
+  const allVehicles = await Vehicle.findAll({ where: { userId, isDefault: true } });
 
   const reservedVehicles = await Reservation.findAll({
     attributes: ["vehicleId"],
@@ -182,7 +189,7 @@ const freeUpAvailableSpace = async (parkingId) => {
   const parking = await Parking.findByPk(parkingId);
   if (!parking) throw new Error("Estacionamiento no encontrado");
 
-  parking.availableSpaces -= 1;
+  parking.availableSpaces += 1;
   await parking.save();
   return parking;
 }
@@ -197,3 +204,77 @@ export const cancelReservationService = async (reservationId, userId) => {
   await reservation.destroy();
   return { message: "Reserva cancelada correctamente" };
 };
+
+export async function markEntryWithPatentService(adminUserId, patentNumber) {
+  const adminUser = await User.findByPk(adminUserId);
+  if (!adminUser || adminUser.role !== 'admin') {
+    throw new Error('Usuario no autorizado');
+  }
+
+  const parking = await Parking.findOne({ where: { adminId: adminUserId } });
+  if (!parking) throw new Error('No se encontró el estacionamiento para este administrador.');
+  if (parking.availableSpaces <= 0) throw new Error('No hay espacios disponibles.');
+
+  let user = await User.findOne({ where: { email: { [Op.iLike]: `%auto@default.com` } } });
+  if (!user) {
+    const hashedPassword = await bcrypt.hash('temp', 10);
+    user = await User.create({
+      name: 'Visitante',
+      email: `user_${Date.now()}@default.com`,
+      password: hashedPassword,
+    });
+  }
+
+  let vehicle = await Vehicle.findOne({ where: { carPatent: patentNumber } });
+  if (!vehicle) {
+    vehicle = await Vehicle.create({
+      carPatent: patentNumber,
+      userId: user.id,
+      vehicleType: 'auto',
+      model: 'sedan',
+      isDefault: true
+    });
+  }
+
+  const startTime = new Date();
+  const endTime = new Date(startTime.getTime() + 30 * 60000);
+
+  const isAvailable = await checkAvailabilityService(parking.id, startTime, endTime);
+  if (!isAvailable) throw new Error("El estacionamiento ya está reservado en ese horario.");
+
+  const vehicles = await getAvailableVehiclesService(user.id, startTime, endTime);
+  if (!vehicles.some((v) => v.id === vehicle.id)) throw new Error("El vehículo ya está reservado en ese horario.");
+
+  const durationHours = 0.5;
+  const totalCost = Math.ceil(durationHours * parking.rate);
+
+  let reservation = await Reservation.create({
+    userId: user.id,
+    vehicleId: vehicle.id,
+    parkingId: parking.id,
+    startTime,
+    endTime,
+    totalCost,
+  });
+
+  parking.availableSpaces -= 1;
+  await parking.save();
+
+  const newReservation = await markEntryService(reservation.id)
+
+  return newReservation;
+}
+
+
+export async function markExitWithPatentService(adminUserId, patentNumber) {
+  const vehicle = await Vehicle.findOne({ where: { carPatent: patentNumber } });
+  if (!vehicle) throw new Error('No se encontró el vehiculo para marcar la salida.');
+
+  const reservation = await Reservation.findOne({ where: {vehicleId: vehicle.id}})
+  if (!reservation) throw new Error('No se encontró la reservacion para este vehiculo.');
+
+  const parking = await Parking.findOne({ where: { adminId: adminUserId } });
+  if (!parking) throw new Error('No se encontró el estacionamiento para este administrador.');
+
+  return await markExitService(reservation.id, parking.id);
+}

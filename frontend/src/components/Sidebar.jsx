@@ -4,7 +4,8 @@ import {
   Menu, X, Car, 
   CalendarCheck, Home, 
   ParkingCircle,
-  FileText, ListChecks 
+  FileText, ListChecks, 
+  ScanLine
 } from "lucide-react";
 import { AuthContext } from "../context/AuthContext";
 
@@ -26,21 +27,21 @@ function Sidebar() {
         <ul className="space-y-4">
           {user?.role === "cliente" && (
             <>
-              <li>
+              {/* <li>
                 <Link to="/" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <Home size={18} /> Inicio
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <CalendarCheck size={18} /> Reservas
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/vehicles" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <Car size={18} /> Vehículos
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/parkings" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <ParkingCircle size={18} /> Estacionamientos
@@ -51,6 +52,11 @@ function Sidebar() {
 
           {user?.role === "admin" && (
             <>
+              {/* <li>
+                <Link to="/" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <Home size={18} /> Inicio
+                </Link>
+              </li> */}
               <li>
                 <Link to="/admin/reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <ListChecks size={18} /> Reservas
@@ -59,6 +65,11 @@ function Sidebar() {
               <li>
                 <Link to="/admin/reports-reservations" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
                   <FileText size={18} /> Reporte Reservas
+                </Link>
+              </li>
+              <li>
+                <Link to="/admin/check" className="flex items-center gap-2 p-2 hover:bg-gray-700 rounded-md">
+                  <ScanLine size={18} /> Marcar Entradas/Salidas
                 </Link>
               </li>
             </>

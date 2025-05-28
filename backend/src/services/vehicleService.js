@@ -54,3 +54,10 @@ export const addVehicle = async ({ carPatent, model, vehicleType, userId }) => {
   const findVehicleByPatentUserId = async (carPatent, userId) => {
     return await Vehicle.findOne({ where: { carPatent, userId } });
   }
+
+  export const setDefaultVehicle = async (userId, vehicleId) => {
+    await Vehicle.update({ isDefault: false }, { where: { userId } });
+    await Vehicle.update({ isDefault: true }, { where: { id: vehicleId, userId } });
+  
+    return { message: "Vehículo marcado como predeterminado." };
+  }

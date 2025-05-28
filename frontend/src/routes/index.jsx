@@ -10,6 +10,8 @@ import Parking from "../pages/Parking/Parking";
 import Reservation from "../pages/Reservation/Reservation";
 import AdminReservationPage from "../pages/Reservation/AdminReservation";
 import ReservationReports from "../pages/Reports/ReservationReport";
+import MarkEntryPage from "../pages/EntriesAndExits/Entry&Exits";
+import UserProfile from "../pages/Profile/ProfilePage";
 
 function PrivateRoute({ children }) {
     const { user, loading } = useContext(AuthContext);
@@ -23,11 +25,13 @@ function AdminRoute({ children }) {
 }
 
 function AppRoutes() {
+  const { user } = useContext(AuthContext);
   return (
     <Router>
       <Navbar />
       <Routes>
-        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/" element={user?.role === "admin" ? <PrivateRoute><AdminRoute><AdminReservationPage /></AdminRoute></PrivateRoute> : <PrivateRoute><Parking /></PrivateRoute>} />
+        <Route path="/profile" element={<PrivateRoute><UserProfile /></PrivateRoute>} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/vehicles" element={<PrivateRoute><Vehicle/></PrivateRoute>} />
@@ -35,6 +39,7 @@ function AppRoutes() {
         <Route path="/reservations" element={<PrivateRoute><Reservation /></PrivateRoute>} />
         <Route path="/admin/reservations" element={<PrivateRoute><AdminRoute><AdminReservationPage /></AdminRoute></PrivateRoute>} />
         <Route path="/admin/reports-reservations" element={<PrivateRoute><AdminRoute><ReservationReports /></AdminRoute></PrivateRoute>} />
+        <Route path="/admin/check" element={<PrivateRoute><AdminRoute><MarkEntryPage /></AdminRoute></PrivateRoute>} />
       </Routes>
     </Router>
   );

@@ -20,6 +20,10 @@ const Vehicle = db.define("Vehicle", {
     type: DataTypes.ENUM("Automovil", "Motocicleta", "Camioneta"),
     allowNull: false,
   },
+  isDefault: { 
+    type: DataTypes.BOOLEAN, 
+    defaultValue: false 
+  },
   userId: {
     type: DataTypes.UUID,
     allowNull: false,

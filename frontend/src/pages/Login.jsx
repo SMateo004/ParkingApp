@@ -20,7 +20,7 @@ function Login() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
       setUser(response.data.user);
       setToken(response.data.token);
-      navigate("/");
+      response.data.user?.role === "admin" ? navigate("/") : navigate("/parkings");
     } catch (err) {
       setError(err.response?.data?.message || "Credenciales incorrectas");
     }

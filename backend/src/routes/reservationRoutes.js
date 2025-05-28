@@ -9,7 +9,9 @@ import {
     updateReservationEndTime,
     markReservationAsPaid,
     markExit,
-    cancelReservation 
+    cancelReservation,
+    markEntryWithPatent,
+    markExitWithPatent
 } from "../controllers/reservationController.js";
 import { authenticate } from "../middlewares/authMiddleware.js";
 
@@ -24,6 +26,8 @@ router.patch("/mark-entry", authenticate, markEntry);
 router.patch("/mark-exit", authenticate, markExit);
 router.patch("/update-endtime", authenticate, updateReservationEndTime);
 router.patch("/pay", authenticate, markReservationAsPaid);
-router.delete("/cancel/:reservationId", authenticate, cancelReservation);
+router.patch("/mark-entry-patent", authenticate, markEntryWithPatent);
+router.patch("/mark-exit-patent", authenticate, markExitWithPatent);
+router.delete("/cancel", authenticate, cancelReservation);
 
 export default router;

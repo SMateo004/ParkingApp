@@ -19,6 +19,11 @@ api.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+export const getUserProfile = async (userId) => {
+  const response = await api.get("/auth/profile", { params: { userId } });
+  return response.data;
+};
+
 export const getAllVehicles = async (userId) => {
   const response = await api.get("/vehicles", { params: { userId } });
   return response.data;
@@ -117,10 +122,23 @@ export const downloadReservationsReport = async (startDate, endDate, token) => {
   link.click();
 };
 
-export const cancelReservation = async (reservationId, token) => {
-  const response = await api.delete(`/reservations/cancel/${reservationId}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const cancelReservation = async (reservationId) => {
+  const response = await api.delete("/reservations/cancel", { params: { reservationId }})
+  return response.data;
+};
+
+export const markReservationEntryWithPatent = async (patentNumber) => {
+  const response = await api.patch("/reservations/mark-entry-patent", {}, { params: { patentNumber }});
+  return response.data;
+};
+
+export const markReservationExitWithPatent = async (patentNumber) => {
+  const response = await api.patch("/reservations/mark-exit-patent", {}, { params: { patentNumber }});
+  return response.data;
+};
+
+export const setDefaultVehicle = async (vehicleId) => {
+  const response = await api.put("/vehicles/set-default", {}, { params: { vehicleId }});
   return response.data;
 };
 

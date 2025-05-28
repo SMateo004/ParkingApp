@@ -25,11 +25,11 @@ app.use("/api/reports", reportRoutes);
 db.authenticate()
   .then(async () => {
     console.log("Conectado a PostgreSQL")
-    //await initializeParkings();
+    await initializeParkings(); // COMENTAR ESTO UNA VEZ YA HAYAS EJECUTADO UNA VEZ
   })
   .catch((err) => console.error("Error al conectar la BD:", err));
 
-db.sync({ alter: false })
+db.sync({ alter: true }) // PONER FALSE CUANDO HAYAS EJECUTADO UNA VEZ
   .then(() => console.log("Base de datos conectada"))
   .catch((err) => console.log("Error al conectar la BD", err));
 

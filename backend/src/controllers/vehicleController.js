@@ -1,4 +1,4 @@
-import { addVehicle, getVehicles, updateVehicle, deleteVehicle } from "../services/vehicleService.js";
+import { addVehicle, getVehicles, updateVehicle, deleteVehicle, setDefaultVehicle } from "../services/vehicleService.js";
 
 export const registerVehicle = async (req, res) => {
   try {
@@ -44,6 +44,18 @@ export const deleteVehicleController = async (req, res) => {
     const { vehicleId } = req.query;
     const userId = req.user.id;
     const response = await deleteVehicle(vehicleId, userId);
+
+    res.status(200).json({ message: response.message });
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+};
+
+export const setDefaultVehicleController = async (req, res) => {
+  try {
+    const { vehicleId } = req.query;
+    const userId = req.user.id;
+    const response = await setDefaultVehicle(userId, vehicleId);
 
     res.status(200).json({ message: response.message });
   } catch (error) {

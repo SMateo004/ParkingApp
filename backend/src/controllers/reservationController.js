@@ -8,14 +8,16 @@ import {
   updateReservationEndTimeService,
   markReservationAsPaidService,
   markExitService,
-  cancelReservationService
+  cancelReservationService,
+  markEntryWithPatentService,
+  markExitWithPatentService
 } from "../services/reservationService.js";
 
 export const makeReservation = async (req, res) => {
   try {
-    const { vehicleId, parkingId, startTime, endTime } = req.body;
+    const { parkingId, startTime, endTime } = req.body;
     const userId = req.user.id;
-    const reservation = await createReservation({ userId, vehicleId, parkingId, startTime, endTime });
+    const reservation = await createReservation({ userId, parkingId, startTime, endTime });
     res.status(201).json(reservation);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -106,7 +108,7 @@ export const markReservationAsPaid = async (req, res) => {
 
 export const cancelReservation = async (req, res) => {
   try {
-    const { reservationId } = req.params;
+    const { reservationId } = req.query;
     const userId = req.user.id;
 
     const response = await cancelReservationService(reservationId, userId);
@@ -115,3 +117,25 @@ export const cancelReservation = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export async function markEntryWithPatent(req, res) {
+  try {
+    const { patentNumber } = req.query;
+    const adminUserId = req.user.id;
+    const reservation = await markEntryWithPatentService(adminUserId, patentNumber);
+    res.json(reservation);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
+export async function markExitWithPatent(req, res) {
+  try {
+    const { patentNumber } = req.query;
+    const adminUserId = req.user.id;
+    const reservation = await markExitWithPatentService(adminUserId, patentNumber);
+    res.json(reservation);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
