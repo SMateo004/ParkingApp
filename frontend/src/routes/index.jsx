@@ -12,6 +12,8 @@ import AdminReservationPage from "../pages/Reservation/AdminReservation";
 import ReservationReports from "../pages/Reports/ReservationReport";
 import MarkEntryPage from "../pages/EntriesAndExits/Entry&Exits";
 import UserProfile from "../pages/Profile/ProfilePage";
+import ReservationHistory from "../pages/Reservation/ReservationHistory";
+
 
 function PrivateRoute({ children }) {
     const { user, loading } = useContext(AuthContext);
@@ -40,6 +42,8 @@ function AppRoutes() {
         <Route path="/admin/reservations" element={<PrivateRoute><AdminRoute><AdminReservationPage /></AdminRoute></PrivateRoute>} />
         <Route path="/admin/reports-reservations" element={<PrivateRoute><AdminRoute><ReservationReports /></AdminRoute></PrivateRoute>} />
         <Route path="/admin/check" element={<PrivateRoute><AdminRoute><MarkEntryPage /></AdminRoute></PrivateRoute>} />
+        <Route path="/reservations/history" element={<PrivateRoute><ReservationHistory /></PrivateRoute>} />
+
       </Routes>
     </Router>
   );

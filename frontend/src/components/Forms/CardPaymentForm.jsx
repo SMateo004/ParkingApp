@@ -1,10 +1,11 @@
+// src/components/Forms/CardPaymentForm.jsx
 import { useState } from "react";
-import { markReservationAsPaid } from "../../services/api";
+import { markReservationAsPaid, processExtraPayment } from "../../services/api"; // Asegúrate de importar ambos
 import { useNotification } from "../../context/NotificationContext";
 import visaLogo from "../../assets/visa.png";
 import masterLogo from "../../assets/mastercard.png";
 
-const CardPaymentForm = ({ reservation, onSuccess, onClose }) => {
+const CardPaymentForm = ({ reservation, amountToPay, isExtraPayment, onSuccess, onClose, onProcessingChange }) => {
   const { showNotification } = useNotification();
   const [cardNumber, setCardNumber] = useState("");
   const [name, setName] = useState("");
@@ -35,41 +36,54 @@ const CardPaymentForm = ({ reservation, onSuccess, onClose }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    if (onProcessingChange) onProcessingChange(true); // Notifica al padre
+
     try {
-      await new Promise((resolve) => setTimeout(resolve, 4000));
-      const updated = await markReservationAsPaid(reservation.id);
+      // Simula una demora de red y procesamiento
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      let updatedReservation;
+      if (isExtraPayment) {
+        updatedReservation = await processExtraPayment(reservation.id, amountToPay); // Pasa el monto
+      } else {
+        updatedReservation = await markReservationAsPaid(reservation.id);
+      }
+
       showNotification("Pago realizado exitosamente", "success");
-      onSuccess(updated);
+      onSuccess(updatedReservation);
     } catch (err) {
-      console.log(err)
-      showNotification("Error al procesar el pago", "error");
+      console.error("Error en CardPaymentForm:", err);
+      const errorMessage = err.response?.data?.message || err.message || "Error al procesar el pago";
+      showNotification(errorMessage, "error");
     } finally {
       setLoading(false);
+      if (onProcessingChange) onProcessingChange(false); // Notifica al padre que ha terminado
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {/* ... (campos de formulario) */}
       <div className="relative">
-        <label className="block text-sm">Número de tarjeta:</label>
+        <label className="block text-sm font-medium text-gray-700">Número de tarjeta:</label>
         <input
           type="text"
-          className="w-full border p-2 rounded pl-12"
+          className="w-full border p-2 rounded pl-12 focus:ring-blue-500 focus:border-blue-500"
           placeholder="0000-0000-0000-0000"
           value={cardNumber}
           onChange={handleCardNumberChange}
           required
         />
         {getCardType() && (
-          <img src={getCardType()} alt="card" className="absolute left-2 rigt-2 top-8 w-8 h-5" />
+          <img src={getCardType()} alt="card" className="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-5" />
         )}
       </div>
 
       <div>
-        <label className="block text-sm">Nombre en tarjeta:</label>
+        <label className="block text-sm font-medium text-gray-700">Nombre en tarjeta:</label>
         <input
           type="text"
-          className="w-full border p-2 rounded"
+          className="w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500"
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -77,11 +91,11 @@ const CardPaymentForm = ({ reservation, onSuccess, onClose }) => {
       </div>
 
       <div className="flex space-x-4">
-        <div>
-          <label className="block text-sm">Expira:</label>
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700">Expira (MM/AA):</label>
           <input
             type="text"
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500"
             placeholder="MM/AA"
             maxLength="5"
             value={expiry}
@@ -89,11 +103,11 @@ const CardPaymentForm = ({ reservation, onSuccess, onClose }) => {
             required
           />
         </div>
-        <div>
-          <label className="block text-sm">CVV:</label>
+        <div className="flex-1">
+          <label className="block text-sm font-medium text-gray-700">CVV:</label>
           <input
             type="password"
-            className="w-full border p-2 rounded"
+            className="w-full border p-2 rounded focus:ring-blue-500 focus:border-blue-500"
             maxLength="3"
             required
             value={cvv}
@@ -105,16 +119,16 @@ const CardPaymentForm = ({ reservation, onSuccess, onClose }) => {
         <button
           type="button"
           onClick={onClose}
-          className="px-4 py-2 bg-gray-300 text-black rounded hover:bg-gray-400"
+          className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400 transition-colors"
         >
           Cancelar
-        </button>  
+        </button>
         <button
           type="submit"
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           disabled={loading}
         >
-          {loading ? "Procesando..." : `Pagar ${reservation.totalCost} Bs`}
+          {loading ? "Procesando..." : `Pagar ${amountToPay} Bs`}
         </button>
       </div>
     </form>

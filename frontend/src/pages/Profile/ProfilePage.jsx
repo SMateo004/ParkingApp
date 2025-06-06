@@ -16,20 +16,38 @@ export default function UserProfile() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function loadProfile() {
-      try {
-        const res = await getUserProfile(user?.id);
-        const parkings = await getParkings();
-        setUser(res);
-        setParking(parkings);
-        const defaultVehicle = res.Vehicles?.find(v => v.isDefault);
-        if (defaultVehicle) setSelectedDefaultVehicleId(defaultVehicle.id);
-      } catch (err) {
-        console.error("Error loading profile", err);
+  async function loadProfile() {
+    try {
+      const res = await getUserProfile(user?.id);
+      const parkings = await getParkings();
+      setUser(res);
+      setParking(parkings);
+
+      const vehicles = res.Vehicles || [];
+      const defaultVehicle = vehicles.find(v => v.isDefault);
+
+      if (vehicles.length === 1) {
+        // Si solo hay un vehículo y no tiene isDefault, marcarlo automáticamente
+        const onlyVehicle = vehicles[0];
+        setSelectedDefaultVehicleId(onlyVehicle.id);
+
+        if (!onlyVehicle.isDefault) {
+          await setDefaultVehicle(onlyVehicle.id);
+          showNotification("Vehículo predeterminado asignado automáticamente", "success");
+        }
+      } else if (defaultVehicle) {
+        setSelectedDefaultVehicleId(defaultVehicle.id);
       }
+
+    } catch (err) {
+      console.error("Error loading profile", err);
     }
-    loadProfile();
-  }, []);
+  }
+
+  loadProfile();
+}, []);
+
+
 
   const handleVehiculesPage = () => navigate("/vehicles");
   const handleParkingPage = () => navigate("/admin/reservations");

@@ -1,4 +1,5 @@
-import { createContext, useState, useEffect } from "react";
+// src/context/AuthContext.jsx
+import { createContext, useState, useEffect, useContext } from "react"; // ¡Importa useContext!
 
 export const AuthContext = createContext();
 
@@ -33,4 +34,13 @@ export const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+// --- ¡AGREGA ESTA FUNCIÓN Y EXPORTACIÓN! ---
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
 };

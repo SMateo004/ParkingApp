@@ -14,9 +14,25 @@ export default function Register() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  const validateEmail = (email) => /\S+@\S+\.(com|COM)$/.test(email);
+  const validatePhone = (phone) => /^\d{8}$/.test(phone);
+  const validatePatent = (patent) => /^\d{4}[A-Z]{3}$/.test(patent);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    if (!validateEmail(email)) {
+      return setError("El correo debe contener '@' y terminar en '.com'");
+    }
+
+    if (!validatePhone(phoneNumber)) {
+      return setError("El número de celular debe tener exactamente 8 dígitos y ser numérico.");
+    }
+
+    if (!validatePatent(patentNumber)) {
+      return setError("La placa debe tener 4 números seguidos de 3 letras mayúsculas. Ej: 6251ABC");
+    }
 
     try {
       await api.post("/auth/register", {
@@ -49,11 +65,11 @@ export default function Register() {
             <h3 className="text-xl font-semibold text-gray-700">Información Personal</h3>
 
             <div>
-              <label className="block text-sm mb-1">Nombre</label>
+              <label className="block text-sm mb-1">Nombre Completo</label>
               <input
                 type="text"
                 className="w-full p-2 border rounded-md"
-                placeholder="Tu nombre"
+                placeholder="Juan Perez"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
@@ -108,6 +124,7 @@ export default function Register() {
               </select>
             </div>
           </div>
+
           <div className="space-y-4">
             <h3 className="text-xl font-semibold text-gray-700">Datos del Vehículo</h3>
 
@@ -116,8 +133,11 @@ export default function Register() {
               <input
                 type="text"
                 value={patentNumber}
-                onChange={(e) => setPatentNumber(e.target.value)}
+                onChange={(e) =>
+                  setPatentNumber(e.target.value.toUpperCase())
+                }
                 className="w-full p-2 border rounded-md"
+                placeholder="6251ABC"
                 required
               />
             </div>
@@ -148,6 +168,7 @@ export default function Register() {
               </select>
             </div>
           </div>
+
           <div className="md:col-span-2 mt-6 text-center space-y-3">
             <button
               type="submit"
