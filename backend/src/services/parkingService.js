@@ -20,8 +20,8 @@ const createAdminUsers = async () => {
 };
 
 export const initializeParkings = async () => {
-  await Parking.sync({ force: true });
   await User.sync();
+  await Parking.sync({ force: true });
   const admins = await createAdminUsers();
 
   const parkingsData = [
